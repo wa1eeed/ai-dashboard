@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  ai-dashboard:
+    image: node:18-bullseye # استخدام صورة كاملة لضمان التوافق
+    container_name: nx-ops-center-v8-diamond
+    volumes:
+      - ./html:/app/html # يربط الواجهة من داخل المستودع
+      - /data/workspace:/app/data # يربط بيانات OpenClaw
+    ports:
+      - "3000:3000"
+    working_dir: /app
+    command: >
+      sh -c "
+        apt-get update > /dev/null && apt-get install -y curl > /dev/null;
+        npm install -g http-server > /dev/null;
+        http-server ./html -p 3000
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    restart: always
